@@ -2,48 +2,46 @@
   aside.side-bar-area
     .friends-list
       p.friends-list-header FRIENDS
-      a.friend-name anbu
-      a.friend-name barath
+      - @users.each do |user|
+        = link_to user.name, person_path(user), class: "friend-name"
+
   .main-area
     .top-bar
       h1.top-bar-title Dashboard
       .top-bar-actions
-        button.btn.btn-primary type="button"  Add an expense
-        button.btn.btn-secondary type="button"  Settle up
+        button.btn.btn-primary type="button" data-bs-toggle="modal" data-bs-target="#expenseModal" Add an expense
+        button.btn.btn-secondary type="button" data-bs-toggle="modal" data-bs-target="#settleUpModal" Settle up
+
     .expenses-list
-      .expense-item
-        .item-lhs
-          p SEP 30
-          p Hello
-        .item-rhs
-          .you-details
-            p you paid
-            p $23.00
-          .you-details
-            p you lent anbu
-            p $11.50
-        button.remove-btn ❌
-      .expense-item
-        .item-lhs
-          p SEP 30
-          p Hello
-        .item-rhs
-          .you-details
-            p you paid
-            p $23.00
-          .you-details
-            p you lent anbu
-            p $11.50
-        button.remove-btn ❌
-      .expense-item
-        .item-lhs
-          p SEP 30
-          p Hello
-        .item-rhs
-          .you-details
-            p you paid
-            p $23.00
-          .you-details
-            p you lent anbu
-            p $11.50
-        button.remove-btn ❌
+      - if @all_expenses.present?
+        - @all_expenses.each do |expense|
+          - split = expense.expense_splits.find_by(user_id: current_user.id)
+          .expense-item
+            .item-lhs
+              p = expense.date.strftime("%b %d").upcase
+              p = expense.description
+            .item-rhs
+              - if expense.paid_by == current_user
+                .you-details
+                  p You paid
+                  p = number_to_currency(expense.amount)
+                - expense.expense_splits.where.not(user_id: current_user.id).each do |split_detail|
+                  - friend = User.find(split_detail.user_id)
+                  .you-details
+                    p You lent #{friend.name}
+                    p = number_to_currency(split_detail.amount)
+              - else
+                .you-details
+                  p #{expense.paid_by.name} paid
+                  p = number_to_currency(expense.amount)
+                - if split
+                  .you-details
+                    p You owe
+                    p = number_to_currency(split.amount)
+
+            button.remove-btn ❌
+      - else
+        p.text-muted.mt-4 No shared expenses with this friend yet.
+= render 'shared/expense_modal'
+= render 'shared/settle_up_modal'
+

@@ -1,0 +1,26 @@
+#settleUpModal.modal.fade tabindex="-1" aria-labelledby="settleUpModalLabel" aria-hidden="true"
+  .modal-dialog
+    .modal-content
+      = form_with url: settle_up_expenses_path, method: :post, local: true do |f|
+        .modal-header
+          h5.modal-title#settleUpModalLabel Settle Up
+          button.btn-close type="button" data-bs-dismiss="modal" aria-label="Close"
+
+        .modal-body
+          .mb-3
+            = label_tag :user_id, "Select User"
+            = select_tag :user_id,
+                options_from_collection_for_select(@users, :id, :name),
+                class: "form-control", required: true
+
+          .mb-3
+            = label_tag :amount, "Amount"
+            = number_field_tag :amount, nil, step: 0.01, class: "form-control", required: true
+
+          .mb-3
+            = label_tag :date, "Date"
+            = date_field_tag :date, Date.today, class: "form-control", required: true
+
+        .modal-footer
+          button.btn.btn-secondary type="button" data-bs-dismiss="modal" Close
+          = f.submit "Settle Now", class: "btn btn-primary"

@@ -1,0 +1,30 @@
+<!-- app/views/users/edit.html.haml -->
+.dashboard-wrapper.d-flex
+  aside.side-bar-area.bg-light.border-end style="width: 250px; max-height: 100vh; overflow-y: auto;"
+    .friends-list.p-3
+      p.friends-list-header.text-uppercase.fw-bold.mb-3 FRIENDS
+      - @users.each do |user|
+        = render 'shared/friend_link', user: user
+
+  .main-area.p-4
+    .top-bar.d-flex.justify-content-between.align-items-center.mb-4
+      h1.top-bar-title.mb-0 Edit Profile
+
+    = form_with model: @user, url: profile_path, local: true do |f|
+      .card.shadow-sm.p-4
+        .mb-3
+          = f.label :name
+          = f.text_field :name, class: "form-control"
+        .mb-3
+          = f.label :email
+          = f.email_field :email, class: "form-control"
+        .mb-3
+          = f.label :mobile_number
+          = f.telephone_field :mobile_number, class: "form-control"
+        .mb-3
+          = f.label :password
+          = f.password_field :password, class: "form-control", autocomplete: "new-password"
+        .mb-3
+          = f.label :password_confirmation
+          = f.password_field :password_confirmation, class: "form-control"
+        = f.submit "Save Changes", class: "btn btn-success"

@@ -1,0 +1,87 @@
+#expenseModal.modal.fade aria-hidden="true" aria-labelledby="expenseModalLabel" tabindex="-1"
+  .modal-dialog
+    .modal-content
+      = form_with url: expenses_path, method: :post, local: true do |f|
+        .modal-header
+          h5#expenseModalLabel.modal-title Add an Expense
+          button.btn-close type="button" data-bs-dismiss="modal" aria-label="Close"
+
+        .modal-body
+          .mb-3
+            = label_tag :description, "Description"
+            = text_field_tag :description, nil, class: "form-control", required: true
+
+          .mb-3
+            = label_tag :amount, "Amount"
+            = number_field_tag :amount, nil, step: 0.01, class: "form-control", required: true
+
+          .mb-3
+            = label_tag :date, "Date"
+            = date_field_tag :date, Date.today, class: "form-control", required: true
+
+          .mb-3
+            = label_tag :paid_by_id, "Paid by"
+            = select_tag :paid_by_id,
+                options_from_collection_for_select(User.all, :id, :name, selected: current_user.id),
+                class: "form-control"
+
+          .mb-3
+            = label_tag :user_ids, "Split between"
+            .form-check(style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px;")
+              - User.all.each do |user|
+                .form-check
+                  = check_box_tag "user_ids[]", user.id, false, id: "user_ids_#{user.id}", class: "form-check-input split-user-checkbox"
+                  = label_tag "user_ids_#{user.id}", user.name, class: "form-check-label"
+
+          .mb-3
+            = label_tag :split_type, "Split Type"
+            = select_tag :split_type,
+                options_for_select([["Equally", "equal"], ["Fixed Amount", "fixed"], ["Percentage", "percentage"], ["Share Based", "share"]]),
+                class: "form-control", id: "split-type-selector"
+
+          #custom-split-fields.mt-3
+
+        .modal-footer
+          button.btn.btn-secondary type="button" data-bs-dismiss="modal" Close
+          = f.submit "Save Expense", class: "btn btn-primary"
+
+script
+  |
+    document.addEventListener("DOMContentLoaded", () => {
+      const splitTypeSelector = document.getElementById("split-type-selector");
+      const customFieldsDiv = document.getElementById("custom-split-fields");
+
+      splitTypeSelector.addEventListener("change", () => {
+        const type = splitTypeSelector.value;
+        customFieldsDiv.innerHTML = "";
+
+        if (["fixed", "percentage", "share"].includes(type)) {
+          document.querySelectorAll(".split-user-checkbox").forEach(checkbox => {
+            if (checkbox.checked) {
+              const userId = checkbox.value;
+              const labelName = document.querySelector(`label[for='user_ids_${userId}']`).textContent;
+
+              const label = document.createElement("label");
+              label.textContent = `${labelName} (${type})`;
+
+              const input = document.createElement("input");
+              input.type = "number";
+              input.step = "any";
+              input.min = 0;
+              input.required = true;
+              input.name = `custom_split[${userId}]`;
+              input.className = "form-control mb-2";
+
+              customFieldsDiv.appendChild(label);
+              customFieldsDiv.appendChild(input);
+            }
+          });
+        }
+      });
+
+      document.querySelectorAll(".split-user-checkbox").forEach(checkbox => {
+        checkbox.addEventListener("change", () => {
+          splitTypeSelector.dispatchEvent(new Event("change"));
+        });
+      });
+    });

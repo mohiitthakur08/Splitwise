@@ -41,3 +41,33 @@ body {
 .form-signin label {
   float: left
 }
+
+.expense-hover:hover .delete-btn {
+  display: block !important;
+}
+.expense-card {
+  transition: box-shadow 0.3s ease;
+  position: relative;
+
+  &:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+
+  .delete-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: none;
+    color: #dc3545;
+    font-size: 1.2rem;
+  }
+
+  &:hover .delete-icon {
+    display: block;
+  }
+
+  .delete-icon:hover {
+    color: #a71d2a;
+  }
+}
+

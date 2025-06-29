@@ -1,0 +1,8 @@
+/ app/views/shared/_friend_balance_block.html.slim
+- balance_type_class = type == :owe ? 'text-danger' : 'text-success'
+- balance_text = type == :owe ? "You owe #{number_to_currency(amount)}" : "#{user.name} owes you #{number_to_currency(amount)}"
+
+= link_to person_path(user), class: "user-detail text-decoration-none text-dark d-block" do
+  .user-info
+    p.mb-0.fw-semibold = user.name
+    p.mb-0 class=balance_type_class = balance_text

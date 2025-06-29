@@ -7,4 +7,4 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 
-Fabricate.times(10, :user)
+Fabricate.times(20, :user)
