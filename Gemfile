@@ -19,6 +19,7 @@ gem 'sassc-rails'
 gem 'jquery-ui-rails' 
 gem 'net-smtp'
 gem 'net-pop'
+gem 'net-imap', require: 'net/imap'
 
 group :development, :test do
   gem 'rspec-rails'
