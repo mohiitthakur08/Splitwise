@@ -18,6 +18,7 @@ gem 'bootstrap', '~> 5.1.3'
 gem 'sassc-rails'
 gem 'jquery-ui-rails' 
 gem 'net-smtp'
+gem 'net-pop'
 
 group :development, :test do
   gem 'rspec-rails'
