@@ -20,6 +20,7 @@ gem 'jquery-ui-rails'
 gem 'net-smtp'
 gem 'net-pop'
 gem 'net-imap', require: 'net/imap'
+gem 'fabrication'
 
 group :development, :test do
   gem 'rspec-rails'
@@ -29,7 +30,6 @@ group :development, :test do
 end
 
 group :development do
-  gem 'fabrication'
   gem 'listen', '~> 3.3'
   gem 'rack-mini-profiler', '~> 2.0'
   gem 'spring'
