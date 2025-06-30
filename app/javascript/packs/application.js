@@ -4,18 +4,18 @@ import Rails from "@rails/ujs";
 import Turbolinks from "turbolinks";
 import * as ActiveStorage from "@rails/activestorage";
 import "channels";
+
+// ✅ Bootstrap and jQuery
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import "jquery";
 
-
-import "bootstrap"; // ✅ loads Bootstrap JS
-import "jquery"; // ✅ loads jQuery globally
-
-// ✅ load jGrowl manually from vendor folder
+// ✅ Load jGrowl JS from vendor folder
 import "../../assets/stylesheets/jquery.jgrowl.min.js";
 
-// ✅ load SCSS (this includes Bootstrap + jGrowl CSS)
+// ✅ Load SCSS (Bootstrap + jGrowl styles)
 import "../stylesheets/application.scss";
 
+// Start Rails JS utilities
 Rails.start();
 Turbolinks.start();
 ActiveStorage.start();
