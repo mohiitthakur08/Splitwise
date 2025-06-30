@@ -17,6 +17,7 @@ gem 'webpacker', '~> 5.0'
 gem 'bootstrap', '~> 5.1.3'
 gem 'sassc-rails'
 gem 'jquery-ui-rails' 
+gem 'net-smtp'
 
 group :development, :test do
   gem 'rspec-rails'

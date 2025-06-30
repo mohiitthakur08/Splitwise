@@ -130,6 +130,10 @@ GEM
     mini_portile2 (2.6.1)
     minitest (5.15.0)
     msgpack (1.4.2)
+    net-protocol (0.2.2)
+      timeout
+    net-smtp (0.5.1)
+      net-protocol
     nio4r (2.5.8)
     nokogiri (1.12.5)
       mini_portile2 (~> 2.6.1)
@@ -254,6 +258,7 @@ GEM
     temple (0.8.2)
     thor (1.1.0)
     tilt (2.0.10)
+    timeout (0.4.3)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
@@ -302,6 +307,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   jquery-ui-rails
   listen (~> 3.3)
+  net-smtp
   pg (~> 1.5.9)
   puma (~> 5.0)
   rack-mini-profiler (~> 2.0)
