@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  username: mohit08
+  password: mohit08
+  host: localhost
+
+development:
+  <<: *default
+  database: spliwise
+
+test:
+  <<: *default
+  database: spliwise_test
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
