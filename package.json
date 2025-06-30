@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "engines": {
     "node": "16.20.2",
-    "yarn": "1.22.17"
+  "yarn": ">=1.22.0 <2"
   },
   "dependencies": {
     "@popperjs/core": "^2.10.1",
