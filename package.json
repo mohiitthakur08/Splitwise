@@ -1,6 +1,11 @@
 {
   "name": "be-assignment-junior-1",
   "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": "16.20.2",
+    "yarn": "1.22.17"
+  },
   "dependencies": {
     "@popperjs/core": "^2.10.1",
     "@rails/actioncable": "^6.0.0",
@@ -17,7 +22,6 @@
     "webpack-cli": "^3.3.12",
     "yarn": "^1.22.17"
   },
-  "version": "0.1.0",
   "devDependencies": {
     "webpack-dev-server": "^3"
   }
