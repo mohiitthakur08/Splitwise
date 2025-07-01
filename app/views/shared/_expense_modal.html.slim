@@ -45,13 +45,15 @@
           button.btn.btn-secondary type="button" data-bs-dismiss="modal" Close
           = f.submit "Save Expense", class: "btn btn-primary"
 
-script
+= javascript_tag do
   |
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("turbo:load", () => {
       const splitTypeSelector = document.getElementById("split-type-selector");
       const customFieldsDiv = document.getElementById("custom-split-fields");
 
-      splitTypeSelector.addEventListener("change", () => {
+      if (!splitTypeSelector || !customFieldsDiv) return;
+
+      const renderFields = () => {
         const type = splitTypeSelector.value;
         customFieldsDiv.innerHTML = "";
 
@@ -77,11 +79,10 @@ script
             }
           });
         }
-      });
+      };
 
+      splitTypeSelector.addEventListener("change", renderFields);
       document.querySelectorAll(".split-user-checkbox").forEach(checkbox => {
-        checkbox.addEventListener("change", () => {
-          splitTypeSelector.dispatchEvent(new Event("change"));
-        });
+        checkbox.addEventListener("change", renderFields);
       });
     });
