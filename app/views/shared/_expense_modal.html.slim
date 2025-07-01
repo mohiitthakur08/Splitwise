@@ -45,44 +45,54 @@
           button.btn.btn-secondary type="button" data-bs-dismiss="modal" Close
           = f.submit "Save Expense", class: "btn btn-primary"
 
+/ JavaScript placed after DOM to ensure it loads correctly in Turbo+Bootstrap modals
 = javascript_tag do
   |
+    function updateCustomFields() {
+      const type = document.getElementById("split-type-selector").value;
+      const container = document.getElementById("custom-split-fields");
+      container.innerHTML = "";
+
+      if (["fixed", "percentage", "share"].includes(type)) {
+        document.querySelectorAll(".split-user-checkbox").forEach((checkbox) => {
+          if (checkbox.checked) {
+            const userId = checkbox.value;
+            const labelName = document.querySelector(`label[for='user_ids_${userId}']`)?.textContent || "";
+
+            const label = document.createElement("label");
+            label.textContent = `${labelName} (${type})`;
+
+            const input = document.createElement("input");
+            input.type = "number";
+            input.step = "any";
+            input.min = 0;
+            input.required = true;
+            input.name = `custom_split[${userId}]`;
+            input.className = "form-control mb-2";
+
+            container.appendChild(label);
+            container.appendChild(input);
+          }
+        });
+      }
+    }
+
     document.addEventListener("turbo:load", () => {
-      const splitTypeSelector = document.getElementById("split-type-selector");
-      const customFieldsDiv = document.getElementById("custom-split-fields");
+      const splitType = document.getElementById("split-type-selector");
+      const checkboxes = document.querySelectorAll(".split-user-checkbox");
 
-      if (!splitTypeSelector || !customFieldsDiv) return;
+      if (!splitType) return;
 
-      const renderFields = () => {
-        const type = splitTypeSelector.value;
-        customFieldsDiv.innerHTML = "";
+      splitType.addEventListener("change", updateCustomFields);
+      checkboxes.forEach(cb => cb.addEventListener("change", updateCustomFields));
+    });
 
-        if (["fixed", "percentage", "share"].includes(type)) {
-          document.querySelectorAll(".split-user-checkbox").forEach(checkbox => {
-            if (checkbox.checked) {
-              const userId = checkbox.value;
-              const labelName = document.querySelector(`label[for='user_ids_${userId}']`).textContent;
+    document.addEventListener("DOMContentLoaded", () => {
+      const splitType = document.getElementById("split-type-selector");
+      const checkboxes = document.querySelectorAll(".split-user-checkbox");
 
-              const label = document.createElement("label");
-              label.textContent = `${labelName} (${type})`;
+      if (!splitType) return;
 
-              const input = document.createElement("input");
-              input.type = "number";
-              input.step = "any";
-              input.min = 0;
-              input.required = true;
-              input.name = `custom_split[${userId}]`;
-              input.className = "form-control mb-2";
-
-              customFieldsDiv.appendChild(label);
-              customFieldsDiv.appendChild(input);
-            }
-          });
-        }
-      };
-
-      splitTypeSelector.addEventListener("change", renderFields);
-      document.querySelectorAll(".split-user-checkbox").forEach(checkbox => {
-        checkbox.addEventListener("change", renderFields);
-      });
+      splitType.addEventListener("change", updateCustomFields);
+      checkboxes.forEach(cb => cb.addEventListener("change", updateCustomFields));
     });
