@@ -9,7 +9,8 @@
     .top-bar
       h1.top-bar-title Dashboard
       .top-bar-actions
-        button.btn.btn-primary type="button" data-bs-toggle="modal" data-bs-target="#expenseModal" Add an expense
+        button.btn.btn-primary.me-2 type="button" data-bs-toggle="modal" data-bs-target="#expenseModal" Add an expense
+        button.btn.btn-primary.me-2 type="button" data-bs-toggle="modal" data-bs-target="#itemizedExpenseModal" Add Itemized Expense
         button.btn.btn-secondary type="button" data-bs-toggle="modal" data-bs-target="#settleUpModal" Settle up
 
     .dashboard-balances
@@ -42,3 +43,4 @@
 / Hidden form for Settle Up action
 = form_with url: settle_up_expenses_path, method: :post, local: true, id: "settle-up-form" do
   = render 'shared/settle_up_modal'
+  = render 'shared/itemized_expense_modal'

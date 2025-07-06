@@ -21,6 +21,7 @@ gem 'net-smtp'
 gem 'net-pop'
 gem 'net-imap', require: 'net/imap'
 gem 'fabrication'
+gem 'wdm', '>= 0.1.0' if Gem.win_platform?
 
 group :development, :test do
   gem 'rspec-rails'

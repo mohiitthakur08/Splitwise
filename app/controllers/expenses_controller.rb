@@ -3,13 +3,9 @@ class ExpensesController < ApplicationController
 
   def index
     @users = User.where.not(id: current_user.id)
-
-    @expenses = Expense
-                  .joins(:expense_splits)
-                  .where(expense_splits: { user_id: current_user.id })
-                  .or(Expense.where(paid_by_id: current_user.id))
-                  .distinct
-                  .order(date: :desc)
+    paid_expenses = Expense.where(paid_by_id: current_user.id)
+    split_expenses = Expense.joins(:expense_splits).where(expense_splits: { user_id: current_user.id })
+    @expenses = (paid_expenses + split_expenses).uniq.sort_by(&:date).reverse
   end
 
   def new
@@ -18,34 +14,29 @@ class ExpensesController < ApplicationController
   end
 
   def create
-    ActiveRecord::Base.transaction do
-      @expense = Expense.create!(
-        description: params[:description],
-        amount: params[:amount],
-        date: params[:date],
-        paid_by_id: params[:paid_by_id]
-      )
-
-      user_ids = params[:user_ids].map(&:to_i)
-      custom_split = params[:custom_split]&.transform_keys(&:to_i)
-      split_type = params[:split_type]
-
-      @expense.apply_split(
-        split_type: split_type,
-        user_ids: user_ids,
-        custom_split: custom_split
-      )
-    end
-
+    Expense.create_simple!(
+      description: params[:description],
+      amount: params[:amount],
+      date: params[:date],
+      paid_by_id: params[:paid_by_id],
+      user_ids: params[:user_ids],
+      split_type: params[:split_type],
+      custom_split: params[:custom_split]
+    )
     redirect_to dashboard_path, notice: "Expense added successfully"
   rescue => e
-    flash[:alert] = "Error: #{e.message}"
-    redirect_to dashboard_path(open_modal: true)
+    redirect_to dashboard_path(open_modal: true), alert: "Error: #{e.message}"
+  end
+
+  def create_itemized
+    Expense.create_itemized!(params, current_user)
+    redirect_to dashboard_path, notice: "Itemized expense added successfully"
+  rescue => e
+    redirect_to dashboard_path(open_itemized_modal: true), alert: "Error: #{e.message}"
   end
 
   def destroy
-    @expense = Expense.find(params[:id])
-    @expense.destroy
+    Expense.find(params[:id]).destroy
     redirect_to expenses_path, notice: "Expense deleted successfully."
   end
 
@@ -54,19 +45,17 @@ class ExpensesController < ApplicationController
     amount = params[:amount].to_f
     date = params[:date].presence || Date.today
 
-    expense = Expense.create!(
-      description: "Settlement with #{friend.name}",
+    settled_amount = Expense.settle_between_users!(
+      payer: current_user,
+      receiver: friend,
       amount: amount,
-      date: date,
-      paid_by: current_user
+      date: date
     )
 
-    ExpenseSplit.create!(
-      expense: expense,
-      user: friend,
-      amount: amount
-    )
-
-    redirect_to dashboard_path, notice: "You settled ₹#{amount} with #{friend.name}."
+    if settled_amount > 0
+      redirect_to dashboard_path, notice: "You settled ₹#{settled_amount} with #{friend.name}."
+    else
+      redirect_to dashboard_path, alert: "No matching debts found to settle."
+    end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_28_212232) do
+ActiveRecord::Schema.define(version: 2025_07_03_203324) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,6 +43,15 @@ ActiveRecord::Schema.define(version: 2025_06_28_212232) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "expense_items", force: :cascade do |t|
+    t.string "name"
+    t.decimal "amount"
+    t.bigint "expense_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["expense_id"], name: "index_expense_items_on_expense_id"
+  end
+
   create_table "expense_splits", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "expense_id", null: false
@@ -60,6 +69,17 @@ ActiveRecord::Schema.define(version: 2025_06_28_212232) do
     t.integer "paid_by_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.decimal "tax"
+  end
+
+  create_table "item_splits", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "expense_item_id", null: false
+    t.decimal "amount"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["expense_item_id"], name: "index_item_splits_on_expense_item_id"
+    t.index ["user_id"], name: "index_item_splits_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -78,6 +98,9 @@ ActiveRecord::Schema.define(version: 2025_06_28_212232) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "expense_items", "expenses"
   add_foreign_key "expense_splits", "expenses"
   add_foreign_key "expense_splits", "users"
+  add_foreign_key "item_splits", "expense_items"
+  add_foreign_key "item_splits", "users"
 end

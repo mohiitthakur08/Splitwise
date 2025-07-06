@@ -1,0 +1,137 @@
+#itemizedExpenseModal.modal.fade aria-hidden="true" aria-labelledby="itemizedExpenseModalLabel" tabindex="-1"
+  .modal-dialog
+    .modal-content
+      = form_with url: itemized_expenses_path, method: :post, local: true do |f|
+        .modal-header
+          h5#itemizedExpenseModalLabel.modal-title Add an Itemized Expense
+          button.btn-close type="button" data-bs-dismiss="modal" aria-label="Close"
+
+        .modal-body
+          .mb-3
+            = label_tag :description, "Description"
+            = text_field_tag :description, nil, class: "form-control", required: true
+
+          .mb-3
+            = label_tag :date, "Date"
+            = date_field_tag :date, Date.today, class: "form-control", required: true
+
+          .mb-3
+            = label_tag :paid_by_id, "Paid by"
+            = select_tag :paid_by_id,
+                options_from_collection_for_select(User.all, :id, :name, selected: current_user.id),
+                class: "form-control"
+
+          .mb-3
+            = label_tag :items, "Items"
+            #items-container
+
+          button.btn.btn-sm.btn-outline-primary.mb-3 type="button" onclick="addItem()" Add Item
+
+          .mb-3
+            = label_tag :tax, "Tax (optional)"
+            = number_field_tag :tax, nil, step: 0.01, class: "form-control", id: "tax-field"
+
+          .mb-3
+            label Grand Total
+            p#grand-total-preview.fw-bold.text-success ₹0.00
+
+        .modal-footer
+          button.btn.btn-secondary type="button" data-bs-dismiss="modal" Close
+          = f.submit "Save Expense", class: "btn btn-primary"
+
+template#user-checkboxes-template
+  .form-check
+    - User.all.each do |user|
+      .form-check
+        input.form-check-input type="checkbox" data-user-id="#{user.id}" value="#{user.id}"
+        label.form-check-label = user.name
+
+= javascript_tag do
+  |
+    let itemIndex = 0;
+
+    function updateGrandTotal() {
+      const amountInputs = document.querySelectorAll(".item-amount-input");
+      let total = 0;
+
+      amountInputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) total += val;
+      });
+
+      const tax = parseFloat(document.getElementById("tax-field")?.value || 0);
+      total += isNaN(tax) ? 0 : tax;
+
+      document.getElementById("grand-total-preview").textContent = `₹${total.toFixed(2)}`;
+    }
+
+    function addItem() {
+      const container = document.getElementById("items-container");
+      const userTemplate = document.getElementById("user-checkboxes-template").content.cloneNode(true);
+
+      userTemplate.querySelectorAll("input[type=checkbox]").forEach(input => {
+        const userId = input.getAttribute("data-user-id");
+        input.name = `items[${itemIndex}][user_ids][]`;
+        input.id = `item_${itemIndex}_user_${userId}`;
+      });
+
+      userTemplate.querySelectorAll("label").forEach(label => {
+        const input = label.previousElementSibling;
+        if (input && input.id) label.setAttribute("for", input.id);
+      });
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "border p-2 rounded mb-3 position-relative";
+
+      wrapper.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold item-title mb-0">Item ${itemIndex + 1}</h6>
+          <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn" title="Delete this item">❌</button>
+        </div>
+
+        <label>Item Name</label>
+        <input type="text" name="items[${itemIndex}][name]" class="form-control mb-2 item-name-input" required />
+
+        <label>Amount</label>
+        <input type="number" name="items[${itemIndex}][amount]" step="0.01" class="form-control mb-2 item-amount-input" required />
+
+        <label>Split between</label>
+        <div class="form-check" style="max-height: 100px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 5px;" id="users-for-${itemIndex}">
+        </div>
+      `;
+
+      container.appendChild(wrapper);
+
+      const userBox = wrapper.querySelector(`#users-for-${itemIndex}`);
+      userBox.appendChild(userTemplate);
+
+      const title = wrapper.querySelector(".item-title");
+      const nameInput = wrapper.querySelector(".item-name-input");
+      nameInput.addEventListener("input", () => {
+        title.textContent = nameInput.value || `Item ${itemIndex + 1}`;
+      });
+
+      const amountInput = wrapper.querySelector(".item-amount-input");
+      amountInput.addEventListener("input", updateGrandTotal);
+
+      const removeBtn = wrapper.querySelector(".remove-item-btn");
+      removeBtn.addEventListener("click", () => {
+        wrapper.remove();
+        updateGrandTotal();
+      });
+
+      itemIndex++;
+      updateGrandTotal();
+    }
+
+    document.addEventListener("turbo:load", () => {
+      itemIndex = 0;
+      const taxInput = document.getElementById("tax-field");
+      if (taxInput) taxInput.addEventListener("input", updateGrandTotal);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      itemIndex = 0;
+      const taxInput = document.getElementById("tax-field");
+      if (taxInput) taxInput.addEventListener("input", updateGrandTotal);
+    });
